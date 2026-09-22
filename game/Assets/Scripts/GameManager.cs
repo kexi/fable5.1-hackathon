@@ -52,6 +52,7 @@ namespace DodgeRunner
         {
             Instance = this;
             Speed = 0f;
+            Application.targetFrameRate = 60;
         }
 
         void Update()

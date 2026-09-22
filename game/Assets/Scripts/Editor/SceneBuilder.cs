@@ -49,7 +49,7 @@ namespace DodgeRunner.EditorTools
             cam.fieldOfView = 60f;
             var camData = camGo.AddComponent<UniversalAdditionalCameraData>();
             camData.renderPostProcessing = true;
-            camData.antialiasing = AntialiasingMode.FastApproximateAntialiasing;
+            camData.antialiasing = AntialiasingMode.None;
             var rig = camGo.AddComponent<CameraRig>();
 
             // Global Volume（Bloom + Vignette）
@@ -63,7 +63,7 @@ namespace DodgeRunner.EditorTools
             var light = lightGo.AddComponent<Light>();
             light.type = LightType.Directional;
             light.intensity = 1.2f;
-            light.shadows = LightShadows.Soft;
+            light.shadows = LightShadows.None; // WebGL の負荷を抑える
             lightGo.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
 
             // Game manager
@@ -179,6 +179,8 @@ namespace DodgeRunner.EditorTools
             text.alignment = anchor;
             text.color = Color.white;
             text.fontStyle = FontStyle.Bold;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
             var outline = go.AddComponent<Outline>();
             outline.effectColor = new Color(0f, 0f, 0f, 0.8f);
             outline.effectDistance = new Vector2(2f, -2f);
@@ -234,14 +236,14 @@ namespace DodgeRunner.EditorTools
                 AssetDatabase.CreateAsset(profile, path);
             }
             if (!profile.TryGet<Bloom>(out var bloom)) bloom = profile.Add<Bloom>(true);
-            bloom.intensity.Override(1.6f);
+            bloom.intensity.Override(1.4f);
+            bloom.highQualityFiltering.Override(false);
             bloom.threshold.Override(0.9f);
             bloom.scatter.Override(0.75f);
             if (!profile.TryGet<Vignette>(out var vignette)) vignette = profile.Add<Vignette>(true);
             vignette.intensity.Override(0.35f);
             vignette.smoothness.Override(0.5f);
-            if (!profile.TryGet<ChromaticAberration>(out var ca)) ca = profile.Add<ChromaticAberration>(true);
-            ca.intensity.Override(0.15f);
+            if (profile.TryGet<ChromaticAberration>(out var ca)) ca.active = false; // WebGL では重いので無効
             EditorUtility.SetDirty(profile);
             return profile;
         }

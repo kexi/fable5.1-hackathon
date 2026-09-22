@@ -6,8 +6,8 @@ namespace DodgeRunner
     // 両脇に流れるネオン・スカイライン（ランダムな高さの発光ビル）。
     public class Skyline : MonoBehaviour
     {
-        [SerializeField] int countPerSide = 18;
-        [SerializeField] float spacing = 9f;
+        [SerializeField] int countPerSide = 12;
+        [SerializeField] float spacing = 13f;
         [SerializeField] float sideX = 11f;
         [SerializeField] float recycleZ = -40f;
         [SerializeField] Material material;
