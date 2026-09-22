@@ -1,0 +1,5 @@
+Build/
+shot*.png
+*.log
+build-result.json
+test-results.xml
