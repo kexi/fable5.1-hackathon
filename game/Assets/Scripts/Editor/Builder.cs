@@ -17,12 +17,13 @@ namespace DodgeRunner.EditorTools
             var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
             if (scenes.Length == 0) throw new InvalidOperationException("No scenes in build settings. Run SceneBuilder.Build first.");
 
+            PlayerSettings.productName = "Fable 5.1 Dodge Runner";
             var isWebGL = target == BuildTarget.WebGL;
             if (isWebGL)
             {
-                // ローカル配信で Content-Encoding を気にせず済むよう非圧縮にする
-                PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Disabled;
-                PlayerSettings.WebGL.decompressionFallback = false;
+                // GitHub Pages は .gz に Content-Encoding を付けないため、JS 側で解凍する fallback を有効にする
+                PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
+                PlayerSettings.WebGL.decompressionFallback = true;
             }
 
             var options = new BuildPlayerOptions

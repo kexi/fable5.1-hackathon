@@ -1,5 +1,6 @@
 Build/
 shot*.png
 *.log
-build-result.json
+build-result*.json
+test-run.json
 test-results.xml

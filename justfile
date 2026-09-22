@@ -44,3 +44,9 @@ build-web:
 # WebGL ビルドをローカル配信する（http://localhost:8080）
 serve:
     python3 -m http.server 8080 --directory {{ justfile_directory() }}/Build/WebGL
+
+# WebGL ビルド成果物を dist/ にコピーする（GitHub Pages のデプロイ対象。commit して push すると配信される）
+dist:
+    rm -rf {{ justfile_directory() }}/dist
+    cp -R {{ justfile_directory() }}/Build/WebGL {{ justfile_directory() }}/dist
+    touch {{ justfile_directory() }}/dist/.nojekyll

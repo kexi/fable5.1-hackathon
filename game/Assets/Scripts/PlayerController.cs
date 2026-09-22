@@ -8,8 +8,8 @@ namespace DodgeRunner
     public class PlayerController : MonoBehaviour
     {
         [SerializeField] float laneWidth = 2.5f;
-        [SerializeField] float laneChangeSpeed = 12f;
-        [SerializeField] float jumpVelocity = 9f;
+        [SerializeField] float laneChangeSpeed = 18f;
+        [SerializeField] float jumpVelocity = 9.5f;
 
         int lane = 0; // -1, 0, 1
         Rigidbody body;
@@ -49,12 +49,23 @@ namespace DodgeRunner
             body.MovePosition(new Vector3(newX, pos.y, pos.z));
         }
 
+        void Explode()
+        {
+            var rend = GetComponentInChildren<Renderer>();
+            var mat = rend != null ? rend.sharedMaterial : null;
+            DeathBurst.Play(transform.position, new Color(0.3f, 1f, 1f), mat);
+            foreach (var r in GetComponentsInChildren<Renderer>()) r.enabled = false;
+            foreach (var t in GetComponentsInChildren<TrailRenderer>()) t.emitting = false;
+        }
+
         void OnCollisionEnter(Collision collision)
         {
             var hitObstacle = collision.gameObject.CompareTag("Obstacle");
             if (hitObstacle)
             {
+                var wasPlaying = GameManager.Instance != null && GameManager.Instance.State == GameState.Playing;
                 GameManager.Instance?.GameOver();
+                if (wasPlaying) Explode();
                 return;
             }
             var hitGround = collision.contacts.Length > 0 && collision.contacts[0].normal.y > 0.5f;

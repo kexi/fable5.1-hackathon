@@ -1,4 +1,4 @@
-# DodgeRunner
+# Fable 5.1 Dodge Runner
 
 Unity 6000.6.2f1 製の WebGL ミニゲーム（3D ドッジ・ランナー）。自動前進するキューブを 3 レーン間で動かし、ジャンプで赤い障害物を避けながら走行距離を伸ばします。このリポジトリはハッカソン作品で、主題は「AI（Claude Code Fable 5.1）が公式 Unity CLI と Pipeline パッケージでライブ Editor を駆動し、外部アセット無しにすべてコード生成でゲームを作る」ことです。
 
@@ -6,12 +6,19 @@ Unity 6000.6.2f1 製の WebGL ミニゲーム（3D ドッジ・ランナー）�
 
 | キー | 動作 |
 | --- | --- |
+| 1 / 2 / 3 / 4 | 難易度選択（Haiku 4.5 / Sonnet 5 / Opus 5 / **Fable 5.1**。Fable 5.1 が最難、既定） |
 | Space / Enter | ゲーム開始 |
 | A / D または ← / → | 左右レーン移動 |
 | Space | ジャンプ |
 | R | GAME OVER 後にリトライ |
 
-スコアは走行距離。赤い障害物に当たると GAME OVER です。
+スコアは走行距離。障害物に当たると GAME OVER です。障害物は 3 種類あり、低いハードル（橙）はジャンプで越え、通常ブロック（赤）はギリギリ跳べ、高い壁（紫）は横に避けるしかありません。難易度が上がるほど初速・加速・全レーン封鎖の頻度が増えます。
+
+## 遊ぶ
+
+GitHub Pages: https://kexi.github.io/fable5.1-hackathon/
+
+ビジュアルはすべてコード生成です（宇宙船型プレイヤー、グリッド床テクスチャ、ネオン・スカイライン、Bloom / Vignette / 色収差、死亡時の爆散パーティクル）。外部アセットは使っていません。
 
 ## 必要環境
 
@@ -29,6 +36,7 @@ just build-scene  # SceneBuilder でシーンを生成
 just play         # Play モードで動作確認
 just build-web    # Editor を閉じて WebGL をビルド（Build/WebGL）
 just serve        # http://localhost:8080 で配信
+just dist         # Build/WebGL を dist/ にコピー（commit + push で GitHub Pages に配信）
 ```
 
 その他: `just status`（Editor 状態）、`just screenshot`（Game ビュー撮影）、`just test`（EditMode テスト）。一覧は `just` で表示できます。
@@ -61,6 +69,10 @@ just serve        # http://localhost:8080 で配信
 - `unity build` で Editor を閉じたバッチモードから WebGL ビルドを実行
 
 シーンやプレハブは手作業で作らず、すべて `SceneBuilder.Build()` が生成するため、変更履歴が C# の diff として残ります。
+
+## デプロイ
+
+`dist/` を GitHub Actions（`.github/workflows/deploy-pages.yml`）が GitHub Pages に配信します。Unity のライセンス認証を CI で行わないため、ビルドは手元で `just build-web && just dist` してコミットします。
 
 ## TODO
 

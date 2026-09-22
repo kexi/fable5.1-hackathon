@@ -1,0 +1,19 @@
+{
+  "success": true,
+  "command": "test",
+  "data": {
+    "projectPath": "/Users/kei/ghq/github.com/kexi/fable5.1-hackathon/game",
+    "output": "/Users/kei/ghq/github.com/kexi/fable5.1-hackathon/test-results.xml",
+    "reports": {
+      "nunit": "/Users/kei/ghq/github.com/kexi/fable5.1-hackathon/test-results.xml",
+      "junit": null
+    },
+    "coverage": {
+      "requested": false,
+      "enabled": false,
+      "output": null
+    }
+  },
+  "errors": [],
+  "warnings": []
+}
