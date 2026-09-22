@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fable 5.1 Dodge Runner — LT</title>
+<style>
+  :root {
+    --bg: #0d0620; --bg2: #16093a; --fg: #f3f0ff; --dim: #b8aee0;
+    --cyan: #4ff2ff; --magenta: #ff3fae; --orange: #ffb020; --purple: #b06cff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", "Segoe UI", sans-serif; overflow: hidden; }
+  body { background: radial-gradient(ellipse at 50% 120%, var(--bg2) 0%, var(--bg) 60%); }
+  .grid { position: fixed; inset: 0; pointer-events: none; opacity: .18;
+    background-image: linear-gradient(var(--cyan) 1px, transparent 1px), linear-gradient(90deg, var(--cyan) 1px, transparent 1px);
+    background-size: 64px 64px; transform: perspective(600px) rotateX(60deg) translateY(30%) scale(2); transform-origin: 50% 100%; }
+  .deck { position: relative; height: 100%; }
+  .slide { position: absolute; inset: 0; display: none; flex-direction: column; justify-content: center;
+    padding: 6vh 8vw; gap: 2.4vh; }
+  .slide.active { display: flex; animation: fade .35s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  h1 { font-size: 6.5vh; margin: 0; line-height: 1.15; }
+  h2 { font-size: 5vh; margin: 0 0 1vh; color: var(--cyan); text-shadow: 0 0 18px rgba(79,242,255,.5); }
+  p, li { font-size: 3.2vh; line-height: 1.55; margin: 0; }
+  ul { margin: 0; padding-left: 1.2em; }
+  li + li { margin-top: .6vh; }
+  .neon { color: var(--magenta); text-shadow: 0 0 22px rgba(255,63,174,.65); }
+  .sub { color: var(--dim); }
+  .tag { display: inline-block; padding: .2em .7em; border: 1px solid var(--cyan); border-radius: 999px; color: var(--cyan); font-size: 2.4vh; margin-right: .5em; }
+  code, pre { font-family: "SF Mono", Menlo, monospace; }
+  code { background: rgba(255,255,255,.08); padding: .1em .4em; border-radius: 4px; font-size: .9em; }
+  pre { background: rgba(0,0,0,.45); border-left: 4px solid var(--magenta); padding: 1.6vh 2vw; border-radius: 6px; font-size: 2.6vh; line-height: 1.5; overflow: auto; margin: 0; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 3vw; align-items: center; }
+  .cols3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2vw; }
+  img { width: 100%; border-radius: 8px; border: 1px solid rgba(79,242,255,.35); box-shadow: 0 0 30px rgba(79,242,255,.2); }
+  .timeline { list-style: none; padding: 0; }
+  .timeline li { display: grid; grid-template-columns: 9ch 1fr; gap: 1.5vw; }
+  .timeline b { color: var(--orange); font-variant-numeric: tabular-nums; }
+  .big { font-size: 9vh; font-weight: 800; color: var(--cyan); text-shadow: 0 0 30px rgba(79,242,255,.6); line-height: 1; }
+  a { color: var(--cyan); }
+  .btn { display: inline-block; font-size: 3.4vh; padding: .5em 1.4em; border-radius: 999px; background: var(--magenta); color: #fff; text-decoration: none; box-shadow: 0 0 30px rgba(255,63,174,.6); }
+  .foot { position: fixed; left: 2vw; bottom: 1.6vh; color: var(--dim); font-size: 2vh; }
+  .num { position: fixed; right: 2vw; bottom: 1.6vh; color: var(--dim); font-size: 2vh; font-variant-numeric: tabular-nums; }
+  .bar { position: fixed; left: 0; bottom: 0; height: 4px; background: linear-gradient(90deg, var(--cyan), var(--magenta)); width: 0; transition: width .3s; }
+  table { border-collapse: collapse; font-size: 2.9vh; }
+  td, th { padding: .35em .9em; border-bottom: 1px solid rgba(255,255,255,.12); text-align: left; }
+  th { color: var(--cyan); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="grid"></div>
+<div class="deck">
+
+<section class="slide">
+  <span class="sub"><span class="tag">Fable 5.1 Hackathon</span><span class="tag">2026-09-22</span></span>
+  <h1>Fable 5.1 <span class="neon">Dodge Runner</span></h1>
+  <p>空のリポジトリから <b>1 時間</b>で Unity ゲームを作って GitHub Pages に公開するまで</p>
+  <p class="sub">Claude Code (Fable 5.1) × Unity 6 × 公式 Unity CLI</p>
+</section>
+
+<section class="slide">
+  <h2>お題と制約</h2>
+  <ul>
+    <li>19:42 に計画承認、締切 <b>20:30</b>。リポジトリは README だけ</li>
+    <li>Unity 6000.6.2f1 は入っている。ゲームの中身は未定</li>
+    <li>人間はチャットで注文するだけ。実装・検証・デプロイは AI が実行</li>
+    <li>途中で注文が増える: 死にゲー → Fable 級 → アセット凝って → 難易度選択 → Pages 公開</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h2>最初の 6 分で決めたこと</h2>
+  <div class="cols">
+    <ul>
+      <li><b>WebGL</b> で配布（URL だけで遊べる）</li>
+      <li>URP Blank テンプレート、<b>外部アセット禁止</b></li>
+      <li>ジャンル: 3 レーンのドッジ・ランナー（実装量が最小）</li>
+      <li>Unity プロジェクトは <code>game/</code> に隔離</li>
+      <li>シーンは手で触らず <code>SceneBuilder.Build()</code> で生成</li>
+    </ul>
+    <img src="images/title.jpg" alt="タイトル画面">
+  </div>
+</section>
+
+<section class="slide">
+  <h2>AI が Unity を動かす方法</h2>
+  <ul>
+    <li>公式 <b>Unity CLI</b> 1.0.0-beta.8（Hub が入れてくれる <code>~/.unity/bin/unity</code>）</li>
+    <li><code>com.unity.pipeline</code> を入れると起動中の Editor が <b>コマンド受付口</b>になる</li>
+    <li>Unity 公式の Claude Code プラグイン <code>unity@unity-agent-plugin</code>（29 スキル）</li>
+  </ul>
+  <pre>unity projects create DodgeRunner --template com.unity.template.urp-blank
+unity pipeline install --project-path game && unity open game
+unity command eval 'DodgeRunner.EditorTools.SceneBuilder.Build(); return "ok";'
+unity command editor_play && unity command screenshot --output shot.png
+unity build game --target WebGL --execute-method DodgeRunner.EditorTools.Builder.BuildWebGL</pre>
+</section>
+
+<section class="slide">
+  <h2>開発ループ: 往復 1 秒未満</h2>
+  <div class="cols">
+    <ul>
+      <li>C# を書く → <code>recompile</code> → <code>eval</code> でシーン再生成</li>
+      <li><code>editor_play</code> → eval で <code>StartGame()</code> → 状態を文字列で読む</li>
+      <li><code>screenshot</code> を AI が見て、見た目のズレを直す</li>
+      <li>コンパイルエラーは <code>Logs/Editor.log</code> を grep</li>
+      <li>ビルドだけは Editor を閉じてバッチ実行（約 3 分）</li>
+    </ul>
+    <img src="images/obstacles.png" alt="障害物">
+  </div>
+</section>
+
+<section class="slide">
+  <h2>ゲームの中身</h2>
+  <div class="cols">
+    <ul>
+      <li>A / D で 3 レーン移動、Space でジャンプ</li>
+      <li>障害物 3 種: <span style="color:var(--orange)">橙</span>=跳べる / <span style="color:var(--magenta)">赤</span>=ギリギリ / <span style="color:var(--purple)">紫</span>=避けるしかない</li>
+      <li>難易度: <b>Haiku 4.5 / Sonnet 5 / Opus 5 / Fable 5.1</b></li>
+      <li>Fable 5.1 は 35% で全レーン封鎖。開始 4 秒で死ねる</li>
+      <li>状態遷移は EditMode テスト 3 本で保証</li>
+    </ul>
+    <img src="images/play.jpg" alt="プレイ中">
+  </div>
+</section>
+
+<section class="slide">
+  <h2>アセットはゼロ、全部 C#</h2>
+  <div class="cols3">
+    <div><p><b>宇宙船</b></p><p class="sub">Cube と Sphere 8 個を組み、翼端に TrailRenderer</p></div>
+    <div><p><b>床グリッド</b></p><p class="sub">256px テクスチャを SetPixel で生成して PNG 保存</p></div>
+    <div><p><b>スカイライン</b></p><p class="sub">発光ビル 24 棟をランダム生成して流す</p></div>
+    <div><p><b>Bloom / Vignette</b></p><p class="sub">VolumeProfile もコードで作成</p></div>
+    <div><p><b>脈動する障害物</b></p><p class="sub">MaterialPropertyBlock で発光を Sin 波</p></div>
+    <div><p><b>爆散</b></p><p class="sub">ParticleSystem を実行時に組み立てる</p></div>
+  </div>
+</section>
+
+<section class="slide">
+  <h2>ハマったところ</h2>
+  <table>
+    <tr><th>症状</th><th>原因</th><th>対処</th></tr>
+    <tr><td>Chrome で 1 FPS</td><td>影 + FXAA + 色収差 + Bloom</td><td>Bloom だけ残す</td></tr>
+    <tr><td>Pages で wasm が 404</td><td><code>.gitignore</code> の <code>Build/</code> が <code>dist/Build/</code> にも効く</td><td><code>/Build/</code> に修正</td></tr>
+    <tr><td>タイトルの最終行が消える</td><td>uGUI Text の既定が Truncate</td><td>Overflow に変更</td></tr>
+    <tr><td>スキル文書のフラグで失敗</td><td><code>--caller</code> を eval が拒否</td><td>実測を優先</td></tr>
+  </table>
+</section>
+
+<section class="slide">
+  <h2>デプロイ方針</h2>
+  <ul>
+    <li>CI で Unity のライセンス認証はしない（時間と失敗リスク）</li>
+    <li>手元で <code>just build-web && just dist</code> → <code>dist/</code> を commit</li>
+    <li>GitHub Actions は <code>dist/</code> を Pages にアップロードするだけ（アクションは SHA ピン）</li>
+    <li>WebGL は Gzip + decompressionFallback。Pages の Content-Encoding に依存しない</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h2>タイムライン</h2>
+  <ul class="timeline">
+    <li><b>19:42</b><span>計画承認。プロジェクト生成、スクリプト 5 本、Editor 起動</span></li>
+    <li><b>19:46</b><span>Play Mode でゲームオーバーまで動作確認</span></li>
+    <li><b>19:50</b><span>WebGL 初回ビルド成功、Chrome でプレイ</span></li>
+    <li><b>19:55</b><span>ネオン化、難易度 4 段階、テスト 3 本</span></li>
+    <li><b>20:02</b><span>描画負荷を直して最終ビルド</span></li>
+    <li><b>20:07</b><span>GitHub Pages 公開、本番 URL でプレイ確認</span></li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h2>持ち帰り</h2>
+  <ul>
+    <li>Unity は「AI がスクリーンショットを見て直す」ループが<b>もう成立する</b></li>
+    <li>シーンをコード生成にすると、AI の変更が全部 diff に残る</li>
+    <li>ボトルネックは AI ではなく <b>ビルド 3 分</b>。並行できる作業を先に投げる</li>
+    <li>要求が途中で増えても、テストと再現可能なシーンがあれば怖くない</li>
+  </ul>
+</section>
+
+<section class="slide" style="align-items:center; text-align:center;">
+  <div class="big">PLAY</div>
+  <p>ゲーム: <a href="../">kexi.github.io/fable5.1-hackathon</a></p>
+  <p>コード: <a href="https://github.com/kexi/fable5.1-hackathon">github.com/kexi/fable5.1-hackathon</a></p>
+  <p style="margin-top:2vh"><a class="btn" href="../">Fable 5.1 難易度で挑戦する</a></p>
+</section>
+
+</div>
+<div class="foot">Fable 5.1 Dodge Runner — ← → / Space で移動</div>
+<div class="num"></div>
+<div class="bar"></div>
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  const num = document.querySelector('.num');
+  const bar = document.querySelector('.bar');
+  let index = 0;
+  function show(i) {
+    index = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach((s, k) => s.classList.toggle('active', k === index));
+    num.textContent = `${index + 1} / ${slides.length}`;
+    bar.style.width = `${((index + 1) / slides.length) * 100}%`;
+    location.hash = index + 1;
+  }
+  document.addEventListener('keydown', (e) => {
+    const isNext = e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown' || e.key === 'Enter';
+    const isPrev = e.key === 'ArrowLeft' || e.key === 'PageUp' || e.key === 'Backspace';
+    if (isNext) { e.preventDefault(); show(index + 1); }
+    if (isPrev) { e.preventDefault(); show(index - 1); }
+    if (e.key === 'Home') show(0);
+    if (e.key === 'End') show(slides.length - 1);
+  });
+  document.addEventListener('click', (e) => {
+    const isLink = e.target.closest('a');
+    if (isLink) return;
+    const isLeftHalf = e.clientX < window.innerWidth / 3;
+    show(isLeftHalf ? index - 1 : index + 1);
+  });
+  show(Math.max(0, (parseInt(location.hash.slice(1), 10) || 1) - 1));
+</script>
+</body>
+</html>

@@ -16,7 +16,11 @@ Unity 6000.6.2f1 製の WebGL ミニゲーム（3D ドッジ・ランナー）�
 
 ## 遊ぶ
 
-GitHub Pages: https://kexi.github.io/fable5.1-hackathon/
+| | URL |
+| --- | --- |
+| ゲーム（GitHub Pages） | https://kexi.github.io/fable5.1-hackathon/ |
+| LT スライド | https://kexi.github.io/fable5.1-hackathon/slides/ |
+| リポジトリ | https://github.com/kexi/fable5.1-hackathon |
 
 | タイトル画面（難易度選択） | プレイ中 | 障害物（橙=跳べる / 赤=ギリギリ / 紫=避ける） |
 | --- | --- | --- |
@@ -40,7 +44,7 @@ just build-scene  # SceneBuilder でシーンを生成
 just play         # Play モードで動作確認
 just build-web    # Editor を閉じて WebGL をビルド（Build/WebGL）
 just serve        # http://localhost:8080 で配信
-just dist         # Build/WebGL を dist/ にコピー（commit + push で GitHub Pages に配信）
+just dist         # Build/WebGL と slides/ を dist/ にコピー（commit + push で GitHub Pages に配信）
 ```
 
 その他: `just status`（Editor 状態）、`just screenshot`（Game ビュー撮影）、`just test`（EditMode テスト）。一覧は `just` で表示できます。
@@ -52,6 +56,7 @@ just dist         # Build/WebGL を dist/ にコピー（commit + push で GitHu
 ├── README.md
 ├── justfile                  # Unity CLI 操作のコマンド集
 ├── docs/images/              # README 用スクリーンショット
+├── slides/                   # LT スライド（自己完結の HTML。dist/slides/ に配信）
 ├── dist/                     # GitHub Pages 配信物（WebGL ビルドのコピー）
 ├── Build/WebGL/              # WebGL ビルド出力（gitignore 済み）
 └── game/                     # Unity プロジェクト（URP Blank テンプレート）
@@ -78,7 +83,7 @@ just dist         # Build/WebGL を dist/ にコピー（commit + push で GitHu
 
 ## デプロイ
 
-`dist/` を GitHub Actions（`.github/workflows/deploy-pages.yml`）が GitHub Pages に配信します。Unity のライセンス認証を CI で行わないため、ビルドは手元で `just build-web && just dist` してコミットします。
+`dist/`（ゲーム本体と `slides/`）を GitHub Actions（`.github/workflows/deploy-pages.yml`）が GitHub Pages に配信します。Unity のライセンス認証を CI で行わないため、ビルドは手元で `just build-web && just dist` してコミットします。
 
 ## TODO
 
