@@ -18,6 +18,10 @@ Unity 6000.6.2f1 製の WebGL ミニゲーム（3D ドッジ・ランナー）�
 
 GitHub Pages: https://kexi.github.io/fable5.1-hackathon/
 
+| タイトル画面（難易度選択） | プレイ中 | 障害物（橙=跳べる / 赤=ギリギリ / 紫=避ける） |
+| --- | --- | --- |
+| ![タイトル画面](docs/images/title.jpg) | ![プレイ中](docs/images/play.jpg) | ![障害物](docs/images/obstacles.png) |
+
 ビジュアルはすべてコード生成です（宇宙船型プレイヤー、グリッド床テクスチャ、ネオン・スカイライン、Bloom / Vignette / 色収差、死亡時の爆散パーティクル）。外部アセットは使っていません。
 
 ## 必要環境
@@ -47,6 +51,8 @@ just dist         # Build/WebGL を dist/ にコピー（commit + push で GitHu
 .
 ├── README.md
 ├── justfile                  # Unity CLI 操作のコマンド集
+├── docs/images/              # README 用スクリーンショット
+├── dist/                     # GitHub Pages 配信物（WebGL ビルドのコピー）
 ├── Build/WebGL/              # WebGL ビルド出力（gitignore 済み）
 └── game/                     # Unity プロジェクト（URP Blank テンプレート）
     └── Assets/Scripts/
