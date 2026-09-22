@@ -6,8 +6,8 @@
   },
   "outcome": "success",
   "exitCode": 0,
-  "startedAt": "2026-09-22T11:14:52.520Z",
-  "endedAt": "2026-09-22T11:15:45.333Z",
+  "startedAt": "2026-09-22T18:02:32.192Z",
+  "endedAt": "2026-09-22T18:03:24.938Z",
   "editor": {
     "version": "6000.6.2f1",
     "changeset": "770e33f6875c",
@@ -15,11 +15,12 @@
   },
   "build": {
     "target": "WebGL",
-    "executeMethod": "DodgeRunner.EditorTools.Builder.BuildWebGL"
+    "executeMethod": "DodgeRunner.EditorTools.Builder.BuildWebGL",
+    "logFile": "Logs/build-WebGL-1790100152136.log"
   },
   "source": {
     "vcs": "git",
-    "revision": "134755b5c5304a7476f4082fefb0f8447cff36d0",
+    "revision": "f6708118c9010f856577581a4912f9faf2793d85",
     "dirty": true
   },
   "packages": {

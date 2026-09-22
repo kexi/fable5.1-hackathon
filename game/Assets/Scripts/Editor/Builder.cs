@@ -24,6 +24,8 @@ namespace DodgeRunner.EditorTools
                 // GitHub Pages は .gz に Content-Encoding を付けないため、JS 側で解凍する fallback を有効にする
                 PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
                 PlayerSettings.WebGL.decompressionFallback = true;
+                // スマホ対応のカスタムテンプレート（Assets/WebGLTemplates/DodgeRunner）
+                PlayerSettings.WebGL.template = "PROJECT:DodgeRunner";
             }
 
             var options = new BuildPlayerOptions

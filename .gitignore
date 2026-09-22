@@ -4,3 +4,5 @@ shot*.png
 build-result*.json
 test-run.json
 test-results.xml
+# EditMode テスト実行時に Test Framework が生成する（成果物ではない）
+game/Assets/Resources/PerformanceTestRun*

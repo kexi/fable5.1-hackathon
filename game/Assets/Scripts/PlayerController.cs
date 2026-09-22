@@ -24,13 +24,17 @@ namespace DodgeRunner
         void Update()
         {
             var gm = GameManager.Instance;
-            var keyboard = Keyboard.current;
-            var canControl = gm != null && gm.State == GameState.Playing && keyboard != null;
+            var canControl = gm != null && gm.State == GameState.Playing;
             if (!canControl) return;
 
-            var pressedLeft = keyboard.aKey.wasPressedThisFrame || keyboard.leftArrowKey.wasPressedThisFrame;
-            var pressedRight = keyboard.dKey.wasPressedThisFrame || keyboard.rightArrowKey.wasPressedThisFrame;
-            var pressedJump = keyboard.spaceKey.wasPressedThisFrame || keyboard.wKey.wasPressedThisFrame || keyboard.upArrowKey.wasPressedThisFrame;
+            TouchInput.Poll();
+            var keyboard = Keyboard.current;
+            var hasKeyboard = keyboard != null;
+            var pressedLeft = (hasKeyboard && (keyboard.aKey.wasPressedThisFrame || keyboard.leftArrowKey.wasPressedThisFrame)) || TouchInput.SwipedLeft;
+            var pressedRight = (hasKeyboard && (keyboard.dKey.wasPressedThisFrame || keyboard.rightArrowKey.wasPressedThisFrame)) || TouchInput.SwipedRight;
+            // タッチではタップと上スワイプの両方をジャンプにする（片手でも遊べるように）
+            var pressedJump = (hasKeyboard && (keyboard.spaceKey.wasPressedThisFrame || keyboard.wKey.wasPressedThisFrame || keyboard.upArrowKey.wasPressedThisFrame))
+                              || TouchInput.SwipedUp || TouchInput.Tapped;
 
             if (pressedLeft) lane = Mathf.Max(-1, lane - 1);
             if (pressedRight) lane = Mathf.Min(1, lane + 1);

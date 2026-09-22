@@ -90,7 +90,13 @@ namespace DodgeRunner
             var p = transform.position;
             p.x = Mathf.Lerp(p.x, wantedX, Time.deltaTime * 6f);
             transform.position = p;
-            if (cam != null) cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, baseFov + gm.Speed * fovPerSpeed, Time.deltaTime * 3f);
+            if (cam == null) return;
+            // baseFov は横長画面（16:9）での垂直 FOV。縦持ちでも 3 レーンが収まるよう水平 FOV を保って垂直 FOV に換算する。
+            var wantedFov = baseFov + gm.Speed * fovPerSpeed;
+            var horizontalFov = Camera.VerticalToHorizontalFieldOfView(wantedFov, 16f / 9f);
+            var isPortrait = cam.aspect < 16f / 9f;
+            var targetFov = isPortrait ? Camera.HorizontalToVerticalFieldOfView(horizontalFov, cam.aspect) : wantedFov;
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, Mathf.Min(targetFov, 110f), Time.deltaTime * 3f);
         }
     }
 

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Fable 5.1 Dodge Runner</title>
+    <title>{{{ PRODUCT_NAME }}}</title>
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,11 +11,18 @@
     <meta name="theme-color" content="#0d051f">
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
+#if SHOW_DIAGNOSTICS
+    <link rel="stylesheet" href="<<<TemplateData/diagnostics.css>>>">
+    <script src="<<<TemplateData/diagnostics.js>>>"></script>
+#endif
+#if DEVELOPMENT_PLAYER
+  <script src="<<<TemplateData/profiler.js>>>"></script>
+#endif
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
       <div id="unity-fullscreen-container">
-        <canvas id="unity-canvas" width="960" height="600" tabindex="-1"></canvas>
+        <canvas id="unity-canvas" width="{{{ WIDTH }}}" height="{{{ HEIGHT }}}" tabindex="-1"></canvas>
         <div id="unity-loading-container">
           <div id="unity-loading-bar">
             <div id="unity-logo"></div>
@@ -29,7 +36,10 @@
       <div id="unity-footer">
         <div id="unity-logo-title-footer"></div>
         <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">Fable 5.1 Dodge Runner</div>
+#if SHOW_DIAGNOSTICS
+        <img id="diagnostics-icon" src="TemplateData/webmemd-icon.png">
+#endif
+        <div id="unity-build-title">{{{ PRODUCT_NAME }}}</div>
       </div>
     </div>
     <script>
@@ -62,12 +72,22 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/WebGL.loader.js";
+      var loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
       var config = {
         arguments: [],
-        dataUrl: buildUrl + "/WebGL.data.unityweb",
-        frameworkUrl: buildUrl + "/WebGL.framework.js.unityweb",
-        codeUrl: buildUrl + "/WebGL.wasm.unityweb",
+#if PROGRESSIVE_ASSET_LOADING
+        primaryDataUrls: {{{ JSON.stringify(PRIMARY_DATA_FILES) }}},
+        secondaryDataUrls: {{{ JSON.stringify(SECONDARY_DATA_FILES) }}},
+#else
+        dataUrl: buildUrl + "/{{{ DATA_FILENAME }}}",
+#endif
+        frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}",
+#if USE_WASM
+        codeUrl: buildUrl + "/{{{ CODE_FILENAME }}}",
+#endif
+#if SYMBOLS_FILENAME
+        symbolsUrl: buildUrl + "/{{{ SYMBOLS_FILENAME }}}",
+#endif
         streamingAssetsUrl: "StreamingAssets",
 
         // If you have a custom web site structure, or want to place multiple Unity build instances on the same page,
@@ -75,9 +95,9 @@
         // explicitly point to the element tree root that is displayed in fullscreen mode.
         fullscreenElementID: "unity-fullscreen-container",
 
-        companyName: "DefaultCompany",
-        productName: "Fable 5.1 Dodge Runner",
-        productVersion: "0.1.0",
+        companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
+        productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
+        productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
         showBanner: unityShowBanner,
         // errorHandler: function(err, url, line) {
         //    alert("error " + err + " occurred at line " + line);
@@ -113,13 +133,24 @@
         // Bloom 付きの後処理を高 DPI でフル解像度描画するとスマホ GPU では 60fps を維持できないため、描画倍率を抑える
         config.devicePixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
 
+#if SHOW_DIAGNOSTICS
+        // position the diagnostics icon in the corner on the canvas
+        let diagnostics_icon = document.getElementById("diagnostics-icon");
+        diagnostics_icon.style.position = "fixed";
+        diagnostics_icon.style.bottom = "10px";
+        diagnostics_icon.style.right = "0px";
+        canvas.after(diagnostics_icon);
+#endif
 
       } else {
         // Desktop style: Render the game canvas container in a window that can be maximized to fullscreen:
-        fullscreenContainer.style.width = "960px";
-        fullscreenContainer.style.height = "600px";
+        fullscreenContainer.style.width = "{{{ WIDTH }}}px";
+        fullscreenContainer.style.height = "{{{ HEIGHT }}}px";
       }
 
+#if BACKGROUND_FILENAME
+      canvas.style.background = "url('" + buildUrl + "/{{{ BACKGROUND_FILENAME.replace(/'/g, '%27') }}}') center / cover";
+#endif
 
       var script = document.createElement("script");
       script.src = loaderUrl;
@@ -135,10 +166,52 @@
             loadingContainer.style.display = "none";
           }
         }).then((unityInstance) => {
+#if SHOW_DIAGNOSTICS
+                document.getElementById("diagnostics-icon").onclick = () => {
+                  unityDiagnostics.openDiagnosticsDiv(unityInstance.GetMetricsInfo);
+                };
+#endif
                 document.querySelector("#unity-fullscreen-button").onclick = () => {
                   unityInstance.SetFullscreen(1);
                 };
 
+#if DEVELOPMENT_PLAYER
+                var profile = unityProfiler.createButton(unityInstance);
+                profile.style.marginLeft = '5px';
+                document.querySelector("#unity-build-title").appendChild(profile);
+
+                // Unloading web content from DOM so that browser GC can run can be tricky to get right.
+                // This code snippet shows how to correctly implement a Unity content Unload mechanism to a web page.
+
+                // Unloading Unity content enables a web page to reclaim the memory used by Unity, e.g. for
+                // the purpose of later loading another Unity content instance on the _same_ web page.
+
+                // When using this functionality, take caution to carefully make sure to clear all JavaScript code,
+                // DOM element and event handler references to the old content you may have retained, or
+                // otherwise the browser's garbage collector will be unable to reclaim the old page.
+
+                // N.b. Unity content does _not_ need to be manually unloaded when the user is navigating away from
+                // the current page to another web page. The browser will take care to clear memory of old visited
+                // pages automatically. This functionality is only needed if you want to switch between loading
+                // multiple Unity builds on a single web page.
+                var quit = document.createElement("button");
+                quit.style = "margin-left: 5px; background-color: lightgray; border: none; padding: 5px; cursor: pointer";
+                quit.innerHTML = "Unload";
+                document.querySelector("#unity-build-title").appendChild(quit);
+                quit.onclick = () => {
+                  // Quit Unity application execution
+                  unityInstance.Quit().then(() => {
+                    unityProfiler.shutDown();
+                    // Remove DOM elements from the page so GC can run
+                    document.querySelector("#unity-container").remove();
+                    canvas = null;
+                    fullscreenContainer = null;
+                    // Remover script elements from the page so GC can run
+                    script.remove();
+                    script = null;
+                  });
+                };
+#endif
               }).catch((message) => {
                 alert(message);
               });

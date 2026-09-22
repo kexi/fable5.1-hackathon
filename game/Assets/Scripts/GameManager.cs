@@ -48,29 +48,43 @@ namespace DodgeRunner
         public float Score { get; private set; }
         public float Distance { get; private set; }
 
+        // 状態遷移直後のタップを無視する猶予。衝突の瞬間に押していた指でそのままリトライしてしまうのを防ぐ。
+        const float TapGraceSeconds = 0.5f;
+        float stateSince;
+
         void Awake()
         {
             Instance = this;
             Speed = 0f;
             Application.targetFrameRate = 60;
+            stateSince = Time.unscaledTime;
         }
 
         void Update()
         {
+            TouchInput.Poll();
             var keyboard = Keyboard.current;
-            if (keyboard == null) return;
+            var hasKeyboard = keyboard != null;
 
             var isReady = State == GameState.Ready;
             var isGameOver = State == GameState.GameOver;
-            var pressedStart = keyboard.spaceKey.wasPressedThisFrame || keyboard.enterKey.wasPressedThisFrame;
-            var pressedRetry = keyboard.rKey.wasPressedThisFrame || pressedStart;
+            var isPastGrace = Time.unscaledTime - stateSince >= TapGraceSeconds;
+            var pressedStart = (hasKeyboard && (keyboard.spaceKey.wasPressedThisFrame || keyboard.enterKey.wasPressedThisFrame))
+                               || (TouchInput.Tapped && isPastGrace);
+            var pressedRetry = (hasKeyboard && keyboard.rKey.wasPressedThisFrame) || pressedStart;
 
             if (isReady)
             {
-                if (keyboard.digit1Key.wasPressedThisFrame) SelectedDifficulty = Difficulty.Haiku;
-                if (keyboard.digit2Key.wasPressedThisFrame) SelectedDifficulty = Difficulty.Sonnet;
-                if (keyboard.digit3Key.wasPressedThisFrame) SelectedDifficulty = Difficulty.Opus;
-                if (keyboard.digit4Key.wasPressedThisFrame) SelectedDifficulty = Difficulty.Fable51;
+                if (hasKeyboard)
+                {
+                    if (keyboard.digit1Key.wasPressedThisFrame) SelectedDifficulty = Difficulty.Haiku;
+                    if (keyboard.digit2Key.wasPressedThisFrame) SelectedDifficulty = Difficulty.Sonnet;
+                    if (keyboard.digit3Key.wasPressedThisFrame) SelectedDifficulty = Difficulty.Opus;
+                    if (keyboard.digit4Key.wasPressedThisFrame) SelectedDifficulty = Difficulty.Fable51;
+                }
+                // タッチでは左右スワイプで難易度を順送りする
+                if (TouchInput.SwipedLeft) SelectedDifficulty = ShiftDifficulty(SelectedDifficulty, -1);
+                if (TouchInput.SwipedRight) SelectedDifficulty = ShiftDifficulty(SelectedDifficulty, +1);
             }
             if (isReady && pressedStart)
             {
@@ -90,6 +104,13 @@ namespace DodgeRunner
             Score = Distance;
         }
 
+        static Difficulty ShiftDifficulty(Difficulty current, int step)
+        {
+            const int count = 4;
+            var index = ((int)current + step + count) % count;
+            return (Difficulty)index;
+        }
+
         public void StartGame()
         {
             State = GameState.Playing;
@@ -102,6 +123,7 @@ namespace DodgeRunner
             if (State != GameState.Playing) return;
             State = GameState.GameOver;
             Speed = 0f;
+            stateSince = Time.unscaledTime;
             Debug.Log($"{{\"event\":\"game_over\",\"difficulty\":\"{SelectedDifficulty}\",\"score\":{Mathf.FloorToInt(Score)}}}");
         }
 

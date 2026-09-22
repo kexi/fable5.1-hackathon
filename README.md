@@ -12,6 +12,16 @@ Unity 6000.6.2f1 製の WebGL ミニゲーム（3D ドッジ・ランナー）�
 | Space | ジャンプ |
 | R | GAME OVER 後にリトライ |
 
+スマホ・タブレットではタッチ操作で遊べます（縦持ち・横持ちどちらでも可）。
+
+| タッチ | 動作 |
+| --- | --- |
+| 左右スワイプ（タイトル画面） | 難易度を順送りで切替 |
+| タップ（タイトル画面） | ゲーム開始 |
+| 左右スワイプ | 左右レーン移動 |
+| タップ / 上スワイプ | ジャンプ |
+| タップ（GAME OVER 後） | リトライ |
+
 スコアは TOKEN として表示され、走行距離に応じて増えます。障害物に当たると GAME OVER です。障害物は 3 種類あり、低いハードル（橙）はジャンプで越え、通常ブロック（赤）はギリギリ跳べ、高い壁（紫）は横に避けるしかありません。難易度が上がるほど初速・加速・全レーン封鎖の頻度が増えます。
 
 ## 遊ぶ
@@ -60,12 +70,14 @@ just dist         # Build/WebGL と slides/ を dist/ にコピー（commit + pu
 ├── dist/                     # GitHub Pages 配信物（WebGL ビルドのコピー）
 ├── Build/WebGL/              # WebGL ビルド出力（gitignore 済み）
 └── game/                     # Unity プロジェクト（URP Blank テンプレート）
+    ├── Assets/WebGLTemplates/DodgeRunner/  # スマホ対応のカスタム WebGL テンプレート
     └── Assets/Scripts/
         ├── GameManager.cs    # 状態遷移（Ready / Playing / GameOver）とスコア
         ├── PlayerController.cs
         ├── ObstacleSpawner.cs
         ├── TrackScroller.cs
         ├── HudController.cs
+        ├── TouchInput.cs     # スワイプ / タップ判定（スマホ操作）
         └── Editor/
             ├── SceneBuilder.cs  # シーンをコードから生成
             └── Builder.cs       # WebGL バッチビルド
