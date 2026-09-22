@@ -1,4 +1,4 @@
-Build/
+/Build/
 shot*.png
 *.log
 build-result*.json
